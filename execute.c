@@ -15,7 +15,7 @@ if (pid == 0)
 {
 if (execlp(command, command, (char *)0) == -1)
 {
-printf("%s: command not found\n", command);
+perror("./shell");
 }
 exit(EXIT_FAILURE);
 }
