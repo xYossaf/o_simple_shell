@@ -1,32 +1,39 @@
-#include "main.h"
-/**
- * execute - executes the given command
- * @command: the command to execute
- * Retrun: Void
- */
 void execute(char *command)
 {
-pid_t pid;
-int status;
+    pid_t pid;
+    char *args[1024];
+    int i = 0;
 
-pid = fork();
+    // Parse the command line and separate the command and its arguments
+    char *token = strtok(command, " ");
+    while (token != NULL) {
+        args[i++] = token;
+        token = strtok(NULL, " ");
+    }
+    args[i] = NULL; // Mark the end of the argument list with NULL
 
-if (pid == 0)
-{
-if (execlp(command, command, (char *)0) == -1)
-{
-perror("./shell");
-}
-exit(EXIT_FAILURE);
-}
-else if (pid < 0)
-{
-perror("simple_shell");
-}
-else
-{
-do {
-waitpid(pid, &status, WUNTRACED);
-} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-}
+    // Check if the command exists and is executable
+    if (access(args[0], X_OK) != 0) {
+        fprintf(stderr, "%s: command not found\n", args[0]);
+        return;
+    }
+
+    // Fork and execute the command
+    pid = fork();
+    if (pid == 0) {
+        // Child process
+        if (execvp(args[0], args) == -1) {
+            perror("execvp");
+            exit(EXIT_FAILURE);
+        }
+    } else if (pid < 0) {
+        // Error
+        perror("fork");
+    } else {
+        // Parent process
+        int status;
+        do {
+            waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
 }
