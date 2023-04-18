@@ -1,5 +1,10 @@
+#include <stdio.h>
+#include "main.h"
+
 void execute(char *command)
 {
+    setenv("PATH", "/usr/local/bin:/usr/bin:/bin", 1);
+
     pid_t pid;
     char *args[1024];
     int i = 0;
