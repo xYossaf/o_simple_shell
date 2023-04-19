@@ -9,25 +9,49 @@ void execute(char **args)
 {
     pid_t pid;
     int status;
+    char *path, *p, *path_copy;
 
-    pid = fork();
+    /* Check if the command exists in one of the directories in PATH */
+    path = getenv("PATH");
+    path_copy = strdup(path); /* make a copy of path */
+    p = strtok(path_copy, ":"); /* use path_copy instead of path */
 
-    if (pid == 0)
+    while (p != NULL) /* check if p is not NULL */
     {
-        if (execvp(args[0], args) == -1)
+        char *cmd = malloc(strlen(p) + strlen(args[0]) + 2);
+        sprintf(cmd, "%s/%s", p, args[0]);
+        if (access(cmd, X_OK) == 0)
         {
-            perror("simple_shell");
+            /* Command exists, fork and execute */
+            pid = fork();
+
+            if (pid == 0)
+            {
+                if (execvp(cmd, args) == -1)
+                {
+                    perror("simple_shell");
+                }
+                exit(EXIT_FAILURE);
+            }
+            else if (pid < 0)
+            {
+                perror("simple_shell");
+            }
+            else
+            {
+                do {
+                    waitpid(pid, &status, WUNTRACED);
+                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+            }
+            free(cmd);
+            free(path_copy); /* free the memory allocated by strdup */
+            return;
         }
-        exit(EXIT_FAILURE);
+        free(cmd);
+        p = strtok(NULL, ":"); /* use NULL instead of path_copy */
     }
-    else if (pid < 0)
-    {
-        perror("simple_shell");
-    }
-    else
-    {
-        do {
-            waitpid(pid, &status, WUNTRACED);
-        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-    }
+
+    /* Command not found */
+    fprintf(stderr, "%s: command not found\n", args[0]);
+    free(path_copy); /* free the memory allocated by strdup */
 }
