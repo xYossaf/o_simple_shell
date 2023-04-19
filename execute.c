@@ -10,6 +10,7 @@ void execute(char **args)
     pid_t pid;
     int status;
     char *path, *p, *path_copy;
+    int command_exists = 0;
 
     /* Check if the command exists in one of the directories in PATH */
     path = getenv("PATH");
@@ -22,36 +23,43 @@ void execute(char **args)
         sprintf(cmd, "%s/%s", p, args[0]);
         if (access(cmd, X_OK) == 0)
         {
-            /* Command exists, fork and execute */
-            pid = fork();
-
-            if (pid == 0)
-            {
-                if (execvp(cmd, args) == -1)
-                {
-                    perror("simple_shell");
-                }
-                exit(EXIT_FAILURE);
-            }
-            else if (pid < 0)
-            {
-                perror("simple_shell");
-            }
-            else
-            {
-                do {
-                    waitpid(pid, &status, WUNTRACED);
-                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-            }
-            free(cmd);
-            free(path_copy); /* free the memory allocated by strdup */
-            return;
+            /* Command exists, set command_exists flag to 1 */
+            command_exists = 1;
+            break;
         }
         free(cmd);
         p = strtok(NULL, ":"); /* use NULL instead of path_copy */
     }
 
-    /* Command not found */
-    fprintf(stderr, "%s: command not found\n", args[0]);
     free(path_copy); /* free the memory allocated by strdup */
+
+    if (command_exists)
+    {
+        /* Command exists, fork and execute */
+        pid = fork();
+
+        if (pid == 0)
+        {
+            if (execvp(args[0], args) == -1)
+            {
+                perror("simple_shell");
+            }
+            exit(EXIT_FAILURE);
+        }
+        else if (pid < 0)
+        {
+            perror("simple_shell");
+        }
+        else
+        {
+            do {
+                waitpid(pid, &status, WUNTRACED);
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        }
+    }
+    else
+    {
+        /* Command not found */
+        fprintf(stderr, "%s: command not found\n", args[0]);
+    }
 }
