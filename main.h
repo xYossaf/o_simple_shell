@@ -10,6 +10,6 @@
 
 void prompt();
 char *read_line();
-void execute(char *command);
+void execute(char **args);
 
 #endif
