@@ -1,31 +1,37 @@
 #include "main.h"
-/**
-* main - main
-*
-* Return: int 1 great
-*/
+
 int main(void)
 {
-        char *command;
-        char *token;
+    char *input;
+    char *args[64];
+    int i;
 
-        while (1)
+    while (1)
+    {
+        printf("#cisfun$ ");
+        input = malloc(1024);
+        if (fgets(input, 1024, stdin) == NULL)
         {
-                printf("#cisfun$ ");
-                command = malloc(1024);
-                if (fgets(command, 1024, stdin) == NULL)
-                {
-                        printf("\n");
-                        free(command);
-                        exit(EXIT_SUCCESS);
-                }
-                command[strcspn(command, "\n")] = '\0';
-                token = strtok(command, " ");
-                if (token != NULL)
-                {
-                        execute(token);
-                }
-                free(command);
+            printf("\n");
+            free(input);
+            exit(EXIT_SUCCESS);
         }
-        return (0);
+        input[strcspn(input, "\n")] = '\0';
+
+        i = 0;
+        args[i] = strtok(input, " ");
+        while (args[i] != NULL)
+        {
+            i++;
+            args[i] = strtok(NULL, " ");
+        }
+
+        if (args[0] != NULL)
+        {
+            execute(args);
+        }
+
+        free(input);
+    }
+    return (0);
 }
