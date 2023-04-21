@@ -12,6 +12,12 @@ void execute(char **args)
     char *path, *p, *path_copy;
     int command_exists = 0;
 
+    /* Check if the command is "exit" */
+    if (strcmp(args[0], "exit") == 0)
+    {
+        exit(0);
+    }
+
     /* Check if the command exists in one of the directories in PATH */
     path = getenv("PATH");
     path_copy = strdup(path); /* make a copy of path */
