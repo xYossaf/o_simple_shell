@@ -5,6 +5,8 @@
  * @args: array of strings containing the command and its arguments
  * Return: void
  */
+
+extern char **environ;
 void execute(char **args)
 {
     pid_t pid;
@@ -16,6 +18,18 @@ void execute(char **args)
     if (strcmp(args[0], "exit") == 0)
     {
         exit(0);
+    }
+
+    /* Check if the command is "env" */
+    if (strcmp(args[0], "env") == 0)
+    {
+        char **env = environ;
+        while (*env)
+        {
+            printf("%s\n", *env);
+            env++;
+        }
+        return;
     }
 
     /* Check if the command exists in one of the directories in PATH */
