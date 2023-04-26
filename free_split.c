@@ -6,7 +6,8 @@
  */
 void free_split(char **arr)
 {
-for (int i = 0; arr[i] != NULL; i++)
+	int i;
+for (i = 0; arr[i] != NULL; i++)
 {
 free(arr[i]);
 }
