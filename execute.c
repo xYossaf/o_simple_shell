@@ -8,6 +8,9 @@
 
 void execute(char **args)
 {
+	char *path;
+	char **paths;
+	char *cmd;
 /* Check if the command is "exit" */
 if (strcmp(args[0], "exit") == 0)
 {
@@ -22,9 +25,9 @@ return;
 }
 
 /* Check if the command exists in one of the directories in PATH */
-char *path = getenv("PATH");
-char **paths = split_path(path);
-char *cmd = find_command(args[0], paths);
+path = getenv("PATH");
+paths = split_path(path);
+cmd = find_command(args[0], paths);
 free_split(paths);
 
 if (cmd != NULL)
@@ -87,8 +90,9 @@ return (paths);
 char *find_command(char *cmd, char **paths)
 {
 char *path = NULL;
+int i;
 
-for (int i = 0; paths[i] != NULL; i++)
+for (i = 0; paths[i] != NULL; i++)
 {
 char *full_path = malloc(strlen(paths[i]) + strlen(cmd) + 2);
 sprintf(full_path, "%s/%s", paths[i], cmd);
