@@ -6,80 +6,136 @@
  * Return: void
  */
 
-extern char **environ;
 void execute(char **args)
 {
-    pid_t pid;
-    int status;
-    char *path, *p, *path_copy;
-    int command_exists = 0;
+/* Check if the command is "exit" */
+if (strcmp(args[0], "exit") == 0)
+{
+exit(0);
+}
 
-    /* Check if the command is "exit" */
-    if (strcmp(args[0], "exit") == 0)
-    {
-        exit(0);
-    }
+/* Check if the command is "env" */
+if (strcmp(args[0], "env") == 0)
+{
+print_env();
+return;
+}
 
-    /* Check if the command is "env" */
-    if (strcmp(args[0], "env") == 0)
-    {
-        char **env = environ;
-        while (*env)
-        {
-            printf("%s\n", *env);
-            env++;
-        }
-        return;
-    }
+/* Check if the command exists in one of the directories in PATH */
+char *path = getenv("PATH");
+char **paths = split_path(path);
+char *cmd = find_command(args[0], paths);
+free_split(paths);
 
-    /* Check if the command exists in one of the directories in PATH */
-    path = getenv("PATH");
-    path_copy = strdup(path); /* make a copy of path */
-    p = strtok(path_copy, ":"); /* use path_copy instead of path */
+if (cmd != NULL)
+{
+/* Command exists, fork and execute */
+fork_and_execute(args, cmd);
+free(cmd);
+}
+else
+{
+/* Command not found */
+fprintf(stderr, "%s: command not found\n", args[0]);
+}
+}
 
-    while (p != NULL) /* check if p is not NULL */
-    {
-        char *cmd = malloc(strlen(p) + strlen(args[0]) + 2);
-        sprintf(cmd, "%s/%s", p, args[0]);
-        if (access(cmd, X_OK) == 0)
-        {
-            /* Command exists, set command_exists flag to 1 */
-            command_exists = 1;
-            break;
-        }
-        free(cmd);
-        p = strtok(NULL, ":"); /* use NULL instead of path_copy */
-    }
+/**
+ * print_env - prints env
+ *
+ * Return: void
+ */
 
-    free(path_copy); /* free the memory allocated by strdup */
+void print_env(void)
+{
+char **env = __environ;
+while (*env)
+{
+printf("%s\n", *env);
+env++;
+}
+}
+/**
+ * split_path - splits path
+ * @path: path given
+ * Return: char - path spilt
+ */
+char **split_path(char *path)
+{
+char **paths = malloc(sizeof(char *));
+char *p = strtok(path, ":");
 
-    if (command_exists)
-    {
-        /* Command exists, fork and execute */
-        pid = fork();
+int i = 0;
+while (p != NULL)
+{
+paths[i] = p;
+i++;
 
-        if (pid == 0)
-        {
-            if (execvp(args[0], args) == -1)
-            {
-                perror("simple_shell");
-            }
-            exit(EXIT_FAILURE);
-        }
-        else if (pid < 0)
-        {
-            perror("simple_shell");
-        }
-        else
-        {
-            do {
-                waitpid(pid, &status, WUNTRACED);
-            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-        }
-    }
-    else
-    {
-        /* Command not found */
-        fprintf(stderr, "%s: command not found\n", args[0]);
-    }
+paths = realloc(paths, (i + 1) * sizeof(char *));
+p = strtok(NULL, ":");
+}
+
+paths[i] = NULL;
+return (paths);
+}
+/**
+ * find_command - splits path
+ * @cmd: cmd given
+ * @paths: paths given
+ * Return: char -  full path
+ */
+char *find_command(char *cmd, char **paths)
+{
+char *path = NULL;
+
+for (int i = 0; paths[i] != NULL; i++)
+{
+char *full_path = malloc(strlen(paths[i]) + strlen(cmd) + 2);
+sprintf(full_path, "%s/%s", paths[i], cmd);
+
+if (access(full_path, X_OK) == 0)
+{
+/* Command exists */
+path = full_path;
+break;
+}
+
+free(full_path);
+}
+
+return (path);
+}
+
+/**
+ * fork_and_execute - splits path
+ * @args: args given
+ * @cmd: cmd given
+ * Return: void
+ */
+void fork_and_execute(char **args, char *cmd)
+{
+pid_t pid = fork();
+int status;
+
+if (pid == 0)
+{
+/* Child process */
+if (execvp(cmd, args) == -1)
+{
+perror("simple_shell");
+}
+
+exit(EXIT_FAILURE);
+}
+else if (pid < 0)
+{
+perror("simple_shell");
+}
+else
+{
+/* Parent process */
+do {
+waitpid(pid, &status, WUNTRACED);
+} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+}
 }

@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/yossaf/Desktop/Code/Simple_Shell",
-      "program": "/home/yossaf/Desktop/Code/Simple_Shell/build/Debug/outDebug",
+      "cwd": "/home/yossaf/Desktop/Code/simpleshell",
+      "program": "/home/yossaf/Desktop/Code/simpleshell/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
