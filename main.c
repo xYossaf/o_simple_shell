@@ -1,7 +1,7 @@
 #include "main.h"
+
 /**
  * main - main;
- * void: void
  * Return: int
  */
 int main(void)
@@ -12,11 +12,16 @@ int i;
 
 while (1)
 {
-printf("#cisfun$ ");
+write(STDOUT_FILENO, "#cisfun$ ", 9);
 input = malloc(1024);
-if (fgets(input, 1024, stdin) == NULL)
+if (!input)
 {
-printf("\n");
+exit(EXIT_FAILURE);
+}
+input = custom_getline();
+if (!input)
+{
+write(STDOUT_FILENO, "\n", 1);
 free(input);
 exit(EXIT_SUCCESS);
 }
@@ -26,17 +31,18 @@ i = 0;
 args[i] = strtok(input, " ");
 while (args[i] != NULL)
 {
+
 i++;
 args[i] = strtok(NULL, " ");
 }
 
 if (args[0] != NULL)
 {
+
 execute(args);
 }
-
+write(STDOUT_FILENO, "37", 1);
 free(input);
 }
 return (0);
 }
-

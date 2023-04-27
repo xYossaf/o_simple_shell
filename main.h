@@ -16,5 +16,6 @@ void fork_and_execute(char **args, char *cmd);
 char *find_command(char *cmd, char **paths);
 char **split_path(char *path);
 void print_env();
+char *custom_getline(void);
 
 #endif

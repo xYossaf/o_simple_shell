@@ -11,9 +11,11 @@ void execute(char **args)
 	char *path;
 	char **paths;
 	char *cmd;
+
 /* Check if the command is "exit" */
 if (strcmp(args[0], "exit") == 0)
 {
+
 exit(0);
 }
 
@@ -32,12 +34,14 @@ free_split(paths);
 
 if (cmd != NULL)
 {
+
 /* Command exists, fork and execute */
 fork_and_execute(args, cmd);
 free(cmd);
 }
 else
 {
+
 /* Command not found */
 fprintf(stderr, "%s: command not found\n", args[0]);
 }

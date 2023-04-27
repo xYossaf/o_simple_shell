@@ -1,11 +1,9 @@
 #include "main.h"
-
 /**
  * custom_getline - reads input from user
  * Return: On success, the function returns a pointer to the input string.
  * On failure, it returns NULL.
  */
-
 #define BUFSIZE 1024
 
 char *custom_getline(void)
@@ -32,7 +30,7 @@ char *custom_getline(void)
         }
 
         if (pos == 0) {
-            char *line = malloc(BUFSIZE);
+            line = malloc(BUFSIZE);
             if (!line) {
                 return NULL;
             }
@@ -51,3 +49,4 @@ char *custom_getline(void)
 
     return line;
 }
+
