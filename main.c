@@ -1,42 +1,34 @@
 #include "main.h"
+
 /**
- * main - main;
- * void: void
- * Return: int
+ * main - principal function
+ * @argc: is an int
+ * @argv: is a char
+ * @environ: global variable
+ * Return: 0
  */
-int main(void)
-{
-char *input;
-char *args[64];
-int i;
 
-while (1)
+int main(int argc, char **argv, char **environ)
 {
-printf("#cisfun$ ");
-input = malloc(1024);
-if (fgets(input, 1024, stdin) == NULL)
-{
-printf("\n");
-free(input);
-exit(EXIT_SUCCESS);
-}
-input[strcspn(input, "\n")] = '\0';
+	char *line = NULL;
+	char *delim = "\t \a\n";
+	char *command;
+	char **tokens;
+	(void)argc;
 
-i = 0;
-args[i] = strtok(input, " ");
-while (args[i] != NULL)
-{
-i++;
-args[i] = strtok(NULL, " ");
-}
+	tokens = find_path(environ);
 
-if (args[0] != NULL)
-{
-execute(args);
+	signal(SIGINT, SIG_IGN);
+	while (1)
+	{
+		line = read_line();
+		argv = splits(line, delim);
+		command = args_path(argv, tokens);
+		if (command == NULL)
+			execute(argv);
+		free(line);
+		free(argv);
+		free(command);
+	}
+	return (0);
 }
-
-free(input);
-}
-return (0);
-}
-
